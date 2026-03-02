@@ -1,5 +1,9 @@
-import { useAppDispatch } from '../app/hooks'
+import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { addToCart } from '../features/cart/cartSlice'
+import {
+  addToWishlist,
+  removeFromWishlist,
+} from '../features/cart/wishlistSlice'
 import type { Movie } from '../types/movie'
 
 interface MovieCardProps {
@@ -8,6 +12,9 @@ interface MovieCardProps {
 
 function MovieCard({ movie }: MovieCardProps) {
   const dispatch = useAppDispatch()
+  const isWishlisted = useAppSelector((state) =>
+    state.wishlist.items.some((item) => item.id === movie.id),
+  )
 
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
@@ -28,13 +35,28 @@ function MovieCard({ movie }: MovieCardProps) {
         <p className="mt-3 text-sm font-medium text-amber-700">
           IMDb: {movie.imdbRating}
         </p>
-        <button
-          type="button"
-          onClick={() => dispatch(addToCart(movie))}
-          className="mt-4 rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700"
-        >
-          Add to Cart
-        </button>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => dispatch(addToCart(movie))}
+            className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700"
+          >
+            Add to Cart
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              dispatch(
+                isWishlisted
+                  ? removeFromWishlist(movie.id)
+                  : addToWishlist(movie),
+              )
+            }
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+          >
+            {isWishlisted ? 'Wishlisted' : 'Wishlist'}
+          </button>
+        </div>
       </div>
     </article>
   )
